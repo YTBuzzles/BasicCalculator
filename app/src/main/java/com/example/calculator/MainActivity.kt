@@ -1,11 +1,9 @@
 package com.example.calculator
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.TextView
-import kotlin.math.exp
+import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,35 +16,35 @@ class MainActivity : AppCompatActivity() {
 
         // defined buttons in a list
         val buttons = listOf<Button>(
-            findViewById<Button>(R.id.numberZero), //0
-            findViewById<Button>(R.id.numberOne), //1
-            findViewById<Button>(R.id.numberTwo), //2
-            findViewById<Button>(R.id.numberThree), //3
-            findViewById<Button>(R.id.numberFour), //4
-            findViewById<Button>(R.id.numberFive), //5
-            findViewById<Button>(R.id.numberSix), //6
-            findViewById<Button>(R.id.numberSeven), //7
-            findViewById<Button>(R.id.numberEight), //8
-            findViewById<Button>(R.id.numberNine), //9
-            findViewById<Button>(R.id.operatorSign), //10
-            findViewById<Button>(R.id.decimalPoint), //11
-            findViewById<Button>(R.id.operatorPlus), //12
-            findViewById<Button>(R.id.operatorMinus), //13
-            findViewById<Button>(R.id.operatorMultiply), //14
-            findViewById<Button>(R.id.operatorDivide), //15
-            findViewById<Button>(R.id.operatorPercentage), //16
-            findViewById<Button>(R.id.symbolParenthesis), //17
-            findViewById<Button>(R.id.operatorEquals), //18
-            findViewById<Button>(R.id.functionClear), //19
-            findViewById<Button>(R.id.backspace) // 20
+            findViewById(R.id.numberZero), //0
+            findViewById(R.id.numberOne), //1
+            findViewById(R.id.numberTwo), //2
+            findViewById(R.id.numberThree), //3
+            findViewById(R.id.numberFour), //4
+            findViewById(R.id.numberFive), //5
+            findViewById(R.id.numberSix), //6
+            findViewById(R.id.numberSeven), //7
+            findViewById(R.id.numberEight), //8
+            findViewById(R.id.numberNine), //9
+            findViewById(R.id.operatorSign), //10
+            findViewById(R.id.decimalPoint), //11
+            findViewById(R.id.operatorPlus), //12
+            findViewById(R.id.operatorMinus), //13
+            findViewById(R.id.operatorMultiply), //14
+            findViewById(R.id.operatorDivide), //15
+            findViewById(R.id.operatorPercentage), //16
+            findViewById(R.id.symbolParenthesis), //17
+            findViewById(R.id.operatorEquals), //18
+            findViewById(R.id.functionClear), //19
+            findViewById(R.id.backspace) // 20
         )
 
-        val calc = Calculator(buttons, input.text.toString(), result.text.toString())
+        val calc = Calculator(input.text.toString(), result.text.toString())
 
         // detect button press and add text to input
         for (i in 0 until 18){
-            buttons[i].setOnClickListener(){
-                calc.add_character(buttons[i].text.toString())
+            buttons[i].setOnClickListener{
+                calc.addCharacter(buttons[i].text.toString())
                 input.text = calc.input
                 result.text = calc.result
             }
@@ -56,21 +54,21 @@ class MainActivity : AppCompatActivity() {
             input.text = result.text
             result.text = ""
         }
-        buttons[19].setOnClickListener(){
+        buttons[19].setOnClickListener{
             input.text = ""
             result.text = ""
             calc.clear()
         }
         // backspace
         buttons[20].setOnClickListener{
-            if (input.text.length != 0) {
+            if (input.text.isNotEmpty()) {
                 if (input.text.length == 1) {
                     calc.clear()
                     input.text = ""
                     result.text = ""
                 } else {
                     calc.input = calc.input.dropLast(2)
-                    calc.add_character(input.text[input.text.length - 2].toString())
+                    calc.addCharacter(input.text[input.text.length - 2].toString())
                     input.text = calc.input
                     result.text = calc.result
                 }
@@ -79,15 +77,12 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-class Calculator(buttons_lst: List<Button>, p_input: String, p_result: String) {
+class Calculator(p_input: String, p_result: String) {
 
     var input = p_input
     var result = p_result
-    val buttons = buttons_lst
-    var input_num: Float = 0.0f
-    var answer_num: Float = 0.0f
 
-    fun add_character(new: String){
+    fun addCharacter(new: String){
         // if new and last is operator return or input is empty
         if (new.toDoubleOrNull() == null && (input.isEmpty() || input[input.length-1].toString().toDoubleOrNull() == null)){
             return
@@ -99,18 +94,10 @@ class Calculator(buttons_lst: List<Button>, p_input: String, p_result: String) {
             return
         }
         // if there are no operators don't calculate, if operators calculate
-        var has_operator = false
-        for (item in input){if (item.toString().toDoubleOrNull() == null && item != '.'){has_operator = true}}
-        if (has_operator){calculate()}
+        var hasOperator = false
+        for (item in input){if (item.toString().toDoubleOrNull() == null && item != '.'){hasOperator = true}}
+        if (hasOperator){calculate()}
         return
-    }
-
-    fun percentage(){
-
-    }
-
-    fun brackets(){
-
     }
 
     fun clear(){
@@ -120,7 +107,7 @@ class Calculator(buttons_lst: List<Button>, p_input: String, p_result: String) {
 
     // takes input as a list of strings and carries out calculation
     // start off simple cause it is probably hard to do it correct ordering
-    fun calculate(): String{
+    private fun calculate(): String{
 
         // 3x6/9+5/
 
@@ -129,7 +116,6 @@ class Calculator(buttons_lst: List<Button>, p_input: String, p_result: String) {
 
         // take input and add into expression list
         val expression= mutableListOf<String>()
-        Log.i("ListLen", expression.size.toString())
 
         // add all elements in, combining numbers
         var pos = 0
@@ -155,16 +141,16 @@ class Calculator(buttons_lst: List<Button>, p_input: String, p_result: String) {
             }
         }
 
-        val infix = infix_to_postfix(expression)
-        result = evaluate_postfix(infix)
+        val infix = infixToPostfix(expression)
+        result = evaluatePostfix(infix)
 
         return result
     }
 
-    fun infix_to_postfix(expression: List<String>): List<String>{
+    private fun infixToPostfix(expression: List<String>): List<String>{
         // now convert from infix to post fix
         val results = mutableListOf<String>()
-        val operator_stack = mutableListOf<String>()
+        val operatorStack = mutableListOf<String>()
 
         for (item in expression){
             // add numbers to result queue
@@ -173,35 +159,35 @@ class Calculator(buttons_lst: List<Button>, p_input: String, p_result: String) {
                 continue
             }
 
-            var done: Boolean = false
+            var done = false
             fun recurse() {
                 // base case I guess
                 if (done){
                     return
                 }
-                if (operator_stack.isEmpty()){
-                    operator_stack.add(item)
+                if (operatorStack.isEmpty()){
+                    operatorStack.add(item)
                     done = true
                     return
                 }
                 // based of precedence
-                val pre_one = precendence(item)
-                val pre_two = precendence(operator_stack[operator_stack.size-1])
+                val preOne = precedence(item)
+                val preTwo = precedence(operatorStack[operatorStack.size-1])
 
-                if (pre_one > pre_two){
-                    operator_stack.add(item)
+                if (preOne > preTwo){
+                    operatorStack.add(item)
                     done = true
                     return
                 }
-                else if (pre_one == pre_two){
-                    results.add(operator_stack[operator_stack.size-1])
-                    operator_stack[operator_stack.size-1] = item
+                else if (preOne == preTwo){
+                    results.add(operatorStack[operatorStack.size-1])
+                    operatorStack[operatorStack.size-1] = item
                     done = true
                     return
                 }
-                else if (pre_one < pre_two) {
-                    results.add(operator_stack[operator_stack.size-1])
-                    operator_stack.removeAt(operator_stack.size-1)
+                else {
+                    results.add(operatorStack[operatorStack.size-1])
+                    operatorStack.removeAt(operatorStack.size-1)
                     recurse()
                 }
             }
@@ -209,15 +195,15 @@ class Calculator(buttons_lst: List<Button>, p_input: String, p_result: String) {
         }
 
         // add rest of elements to results
-        for (elem in operator_stack){
+        for (elem in operatorStack){
             results.add(elem)
         }
-        operator_stack.clear()
+        operatorStack.clear()
 
         return results
     }
 
-    fun evaluate_postfix(express: List<String>): String{
+    private fun evaluatePostfix(express: List<String>): String{
 
         val stack = mutableListOf<String>()
 
@@ -255,7 +241,7 @@ class Calculator(buttons_lst: List<Button>, p_input: String, p_result: String) {
     }
 
 
-    fun precendence(operator: String): Int{
+    private fun precedence(operator: String): Int{
         if (operator == "+" || operator == "-") {
             return 0
         }
